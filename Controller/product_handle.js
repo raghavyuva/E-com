@@ -1,4 +1,5 @@
 const Product = require('../models/product');
+const protected = require('../middleware/protected');
 exports.findAll = (req, res) => {
     Product.find()
         .then(products => {

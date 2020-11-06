@@ -1,5 +1,6 @@
 const multer = require('multer');
 const Product = require('../models/product')
+const protected = require('../middleware/protected');
 const storage = multer.diskStorage({
     destination: ((req, res, cb) => {
         cb(null, './uploads');
@@ -13,7 +14,7 @@ const upload = multer({ storage: storage });
 
 module.exports = (app) => {
     const products = require('../Controller/product_handle');
-    app.post('/products', upload.single('productimg'), (req, res, file) => {
+    app.post('/products', upload.single('productimg'), protected, (req, res, file) => {
         if (!req.body) {
             return res.status(400).send({
                 message: "Product content can not be empty"
@@ -42,12 +43,11 @@ module.exports = (app) => {
                 });
             });
     });
+    app.get('/products', protected, products.findAll);
 
-    app.get('/products', products.findAll);
+    app.get('/products/:productId', protected, products.findOne);
 
-    app.get('/products/:productId', products.findOne);
-
-    app.put('/products/:productId', upload.single('productimg'), (req, res) => {
+    app.put('/products/:productId', upload.single('productimg'), protected, (req, res) => {
         if (!req.body) {
             return res.status(400).send({
                 message: "Product content can not be empty"
@@ -64,7 +64,7 @@ module.exports = (app) => {
             discprice: req.body.discprice,
             specs: req.body.specs,
             advertisement: req.body.advertisement
-            
+
         }, { new: true })
             .then(product => {
                 if (!product) {
@@ -84,5 +84,23 @@ module.exports = (app) => {
                 });
             });
     });
-    app.delete('/products/:productId', products.delete);
+    app.delete('/products/:productId', protected, products.delete);
+
+    app.put('/products/comments/:productId', protected, (req, res) => {
+        const comment = {
+            text: req.body.text,
+            postedBy: req.body.useremail
+        };
+        Product.findByIdAndUpdate(req.params.productId, {
+            $push: { comments: comment }
+        }, {
+            new: true
+        })
+            .exec((err, result) => {
+                if (err) {
+                    return res.json({ error: err });
+                }
+                res.json(result);
+            })
+    })
 }

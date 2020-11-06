@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const { ObjectId } = mongoose.Schema.Types
 const ProductSchema = mongoose.Schema({
     title: String,
     description: String,
@@ -20,9 +20,19 @@ const ProductSchema = mongoose.Schema({
     saled: Number,
     colors: [],
     rating: Number,
-    comments: [],
-    likes: [],
-    stock: Number
+    likes: [{
+        type: ObjectId,
+        ref: 'User'
+    }],
+    comments: [{
+        text: String,
+        postedBy: { type: ObjectId, ref: 'User' }
+    }],
+    stock: Number,
+    postedBy: {
+        type: ObjectId,
+        ref: 'User'
+    }
 }, {
     timestamps: true
 });

@@ -1,9 +1,10 @@
 const Carts = require('../models/update_cart');
 const Products = require('../models/product');
-const Userdata = require('../models/user');
 const Invoices = require('../models/Invoice');
+const _protected = require('../middleware/protected');
+
 module.exports = (app) => {
-    app.post('/updatecart', (req, res) => {
+    app.post('/updatecart', _protected, (req, res) => {
         if (!req.body) {
             res.status(500).send({
                 message: "something went wrong while looking for this product"
@@ -35,7 +36,7 @@ module.exports = (app) => {
     })
 
 
-    app.get('/updatedcart/:useremail', (req, res) => {
+    app.get('/updatedcart/:useremail', _protected, (req, res) => {
         Carts.find({ useremail: req.params.useremail }).exec().then((data) => {
             console.log(data);
             res.send(data);
@@ -48,7 +49,7 @@ module.exports = (app) => {
 
     })
 
-    app.delete('/removeitemincart/:productIdinCart', (req, res) => {
+    app.delete('/removeitemincart/:productIdinCart', _protected, (req, res) => {
         Carts.findByIdAndRemove(req.params.productIdinCart).then(product => {
             if (!product) {
                 return res.status(404).send({
@@ -68,16 +69,15 @@ module.exports = (app) => {
         });
     })
 
-    app.post('/proceedto/:CartId', (req, res) => {
+    app.post('/proceedto/:CartId', _protected, (req, res) => {
         if (!req.body) {
             res.status(500).send({
                 message: "something went wrong while looking for this product"
             })
         }
-        Carts.findById(req.body.buyeremail).exec().then((data) => {
-
+        Carts.findById(req.params.CartId).exec().then((data) => {
             const Invoice = new Invoices({
-                products: data,
+                products: data.product,
                 address: req.body.address,
                 pincode: req.body.pincode,
                 totalprice: req.body.totalprice,

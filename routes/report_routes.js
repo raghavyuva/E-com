@@ -1,5 +1,6 @@
 const multer = require('multer');
 const Reports = require('../models/report');
+const _protected = require('../middleware/protected');
 
 const storage = multer.diskStorage({
     destination: ((req, res, cb) => {
@@ -14,7 +15,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage })
 
 module.exports = (app) => {
-    app.post('/report', upload.single('errscreenshot'), (req, res, file) => {
+    app.post('/report', upload.single('errscreenshot'), _protected, (req, res, file) => {
         if (!req.body) {
             return res.status(400).send({
                 message: "Please fill every fields"
@@ -38,7 +39,7 @@ module.exports = (app) => {
             });
     });
 
-    app.get('/report', (req, res) => {
+    app.get('/report', _protected, (req, res) => {
         Reports.find().then((data) => {
             res.send(data);
             console.log(data);
@@ -50,7 +51,7 @@ module.exports = (app) => {
     })
 
     //admin can only be able to update the ticket once raised or he can just delete it
-    app.put('/report/:reportId', (req, res) => {
+    app.put('/report/:reportId', _protected, (req, res) => {
         if (!req.body) {
             return res.status(400).send({
                 message: "report content can not be empty"
@@ -78,7 +79,7 @@ module.exports = (app) => {
             });
     });
 
-    app.delete('/report/:reportId', (req, res) => {
+    app.delete('/report/:reportId', _protected, (req, res) => {
         Reports.findByIdAndRemove(req.params.reportId)
             .then(report => {
                 if (!report) {
@@ -100,7 +101,7 @@ module.exports = (app) => {
     })
 
     //this is for the user to modify the report or his ticket
-    app.put('/report/update/:reportId', upload.single('errscreenshot'), (req, res) => {
+    app.put('/report/update/:reportId', upload.single('errscreenshot'), _protected, (req, res) => {
         if (!req.body) {
             res.status(500).send({
                 message: "fields cannot be empty fill up your problem to update your ticket"

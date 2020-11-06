@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const multer = require("multer");
 const jwt = require('jsonwebtoken');
 const config = require('../config');
-const storage = multer.diskStorage({
+{/*const storage = multer.diskStorage({
     destination: ((req, res, cb) => {
         cb(null, './profilepic');
     }),
@@ -13,9 +13,9 @@ const storage = multer.diskStorage({
 })
 
 const upload = multer({ storage: storage });
-
+*/}
 module.exports = (app) => {
-    app.post('/signup', upload.single('userphoto'), (req, res, file) => {
+    app.post('/signup', (req, res) => {
         Userdata.find({ email: req.body.email })
             .exec().then((user) => {
                 if (user.length >= 1) {
@@ -23,7 +23,6 @@ module.exports = (app) => {
                         message: "email already exists"
                     })
                 } else {
-                    console.log(req.file.path);
                     bcrypt.hash(req.body.password, 10, ((err, hash) => {
                         if (err) {
                             return res.status(400).send({
@@ -35,7 +34,7 @@ module.exports = (app) => {
                                 password: hash,
                                 username: req.body.username,
                                 age: req.body.age,
-                                userphoto: req.file.path
+                                //   userphoto: req.file.path
                             })
                             userdata.save().then((data) => {
                                 res.send(data);
@@ -78,15 +77,15 @@ module.exports = (app) => {
                     })
                 }
                 if (result) {
-                   const token= jwt.sign(
+                    const token = jwt.sign(
                         { email: user[0].email, id: user[0]._id },
                         config.jwt_token,
                         { expiresIn: "1h" }
                     )
-                    console.log('auth success',token)
+                    console.log('auth success', token)
                     return res.status(200).send({
                         message: "Auth successfull",
-                        token:token
+                        token: token
                     })
                 }
                 return res.status(500).send({
