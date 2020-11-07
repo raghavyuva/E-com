@@ -1,14 +1,18 @@
 const mongoose = require('mongoose');
+const { ObjectId } = mongoose.Schema.Types
 
 const ReportSchema = mongoose.Schema({
     problem: String,
     description: String,
     explaination: String,
-    useremail: String,
+    reportedBy: {
+        type: ObjectId,
+        ref: 'Userdata'
+    },
     errscreenshot: {
         type: String,
     },
-    ticketsolution:String,
+    ticketsolution: String,
 }, {
     timestamps: true
 });

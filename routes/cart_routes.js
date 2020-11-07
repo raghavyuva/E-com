@@ -2,7 +2,6 @@ const Carts = require('../models/update_cart');
 const Products = require('../models/product');
 const Invoices = require('../models/Invoice');
 const _protected = require('../middleware/protected');
-
 module.exports = (app) => {
     app.post('/updatecart', _protected, (req, res) => {
         if (!req.body) {
@@ -15,12 +14,12 @@ module.exports = (app) => {
             if (req.body.productId != data._id) {
                 res.status(500).send({
                     message: "product may have been deleted or it is not available"
-                })
+                });
             }
             else {
                 const carts = new Carts({
                     productId: req.body.productId,
-                    useremail: req.body.useremail,
+                    useremail: req.user._id,
                     product: data
                 })
                 carts.save().then((result) => {
@@ -29,14 +28,13 @@ module.exports = (app) => {
                 }).catch((err) => {
                     res.status(500).send({
                         message: "unhandled rejection while updating your cart"
-                    })
+                    });
                 })
             }
         })
     })
 
-
-    app.get('/updatedcart/:useremail', _protected, (req, res) => {
+    app.get(`/updatedcart/:useremail`, _protected, (req, res) => {
         Carts.find({ useremail: req.params.useremail }).exec().then((data) => {
             console.log(data);
             res.send(data);
@@ -76,20 +74,25 @@ module.exports = (app) => {
             })
         }
         Carts.findById(req.params.CartId).exec().then((data) => {
+            // console.log(data.product.price);
+            let priced = data.product.map((item) => {
+                // console.log(item.price.toNumber());
+                return item.price.toString()
+            })
+            let { price } = priced
             const Invoice = new Invoices({
                 products: data.product,
                 address: req.body.address,
                 pincode: req.body.pincode,
-                totalprice: req.body.totalprice,
+                totalprice: price,
                 discountprice: req.body.discountprice,
                 quantity: req.body.quantity,
-                payableamount: req.body.payableamount,
-                buyercartId: req.body.buyercartId,
-                buyeremail: req.body.buyeremail,
+                payableamount: price - req.body.discountprice,
+                buyer: req.user._id
             })
             Invoice.save().then((result) => {
                 res.send(result);
-                console.log(result);
+                // console.log(result);
             }).catch((err) => {
                 res.status(500).send({
                     message: err.message

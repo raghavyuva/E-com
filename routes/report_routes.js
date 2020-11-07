@@ -21,12 +21,13 @@ module.exports = (app) => {
                 message: "Please fill every fields"
             });
         }
+        console.log(req.user);
         const report = new Reports({
             problem: req.body.problem,
             description: req.body.description,
             explaination: req.body.explaination,
-            useremail: req.body.useremail,
-            errscreenshot: req.file.path
+            errscreenshot: req.file.path,
+            reportedBy: req.user._id
         })
         report.save()
             .then(data => {

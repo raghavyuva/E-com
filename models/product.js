@@ -16,22 +16,21 @@ const ProductSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    //  arrayofimg: [],
     saled: Number,
     colors: [],
     rating: Number,
     likes: [{
         type: ObjectId,
-        ref: 'User'
+        ref: 'Userdata'
     }],
     comments: [{
         text: String,
-        postedBy: { type: ObjectId, ref: 'User' }
+        postedBy: { type: ObjectId, ref: 'Userdata' }
     }],
     stock: Number,
     postedBy: {
         type: ObjectId,
-        ref: 'User'
+        ref: 'Userdata'
     }
 }, {
     timestamps: true

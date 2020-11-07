@@ -14,12 +14,13 @@ module.exports = (req, res, next) => {
         if (err) {
             return res.status(401).send({
                 error: "you must be logged in"
-            })
+            });
         }
-        const { _id } = payload;
-        Userdata.findById(_id).then((data) => {
+      //  console.log(payload);
+        const { id } = payload;
+        Userdata.findById(id).then((data) => {
             req.user = data;
+            next();
         })
-        next();
     })
 }
