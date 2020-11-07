@@ -17,7 +17,6 @@ const sendgridTransport = require('nodemailer-sendgrid-transport');
 
 const upload = multer({ storage: storage });
 */}
-//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
 const transporter = nodemailer.createTransport(sendgridTransport({
   auth: {
     api_key: "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"

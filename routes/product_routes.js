@@ -20,9 +20,8 @@ module.exports = (app) => {
                 message: "Product content can not be empty"
             });
         }
-        console.log(req.file);
         const product = new Product({
-            title: req.body.title || "No product title",
+            title: req.body.title,
             description: req.body.description,
             price: req.body.price,
             company: req.body.company,
@@ -30,13 +29,15 @@ module.exports = (app) => {
             advertisement: req.body.advertisement,
             productimg: req.file.path,
             discprice: req.body.discprice,
-            specs: req.body.specs
+            specs: req.body.specs,
+            colors: req.body.colors,
+            stock: req.body.stock,
+            postedBy: req.user._id,
         });
         product.save()
             .then(data => {
                 res.send(data);
                 console.log(data);
-
             }).catch(err => {
                 res.status(500).send({
                     message: err.message || "Something wrong while creating the product."
@@ -53,18 +54,18 @@ module.exports = (app) => {
                 message: "Product content can not be empty"
             });
         }
-        console.log(req.file);
         Product.findByIdAndUpdate(req.params.productId, {
-            title: req.body.title || "No product title",
+            title: req.body.title,
             description: req.body.description,
             price: req.body.price,
             company: req.body.company,
             category: req.body.category,
+            advertisement: req.body.advertisement,
             productimg: req.file.path,
             discprice: req.body.discprice,
             specs: req.body.specs,
-            advertisement: req.body.advertisement
-
+            colors: req.body.colors,
+            stock: req.body.stock,
         }, { new: true })
             .then(product => {
                 if (!product) {
@@ -89,7 +90,7 @@ module.exports = (app) => {
     app.put('/products/comments/:productId', protected, (req, res) => {
         const comment = {
             text: req.body.text,
-            postedBy: req.body.useremail
+            postedBy: req.user._id
         };
         Product.findByIdAndUpdate(req.params.productId, {
             $push: { comments: comment }
@@ -102,5 +103,35 @@ module.exports = (app) => {
                 }
                 res.json(result);
             })
+    })
+
+    app.put('/products/like/:productId', protected, (req, res) => {
+        Product.findByIdAndUpdate(req.params.productId, {
+            $push: { likes: req.user._id }
+        }, { new: true }).exec().then((pushed) => {
+            console.log(pushed);
+            res.status(200).send({
+                message: "liked the product"
+            })
+        }).catch((errb) => {
+            res.status(500).send({
+                message: "something went wrong while liking product" || errb
+            })
+        })
+    })
+
+    app.put('/products/unlike/:productId', protected, (req, res) => {
+        Product.findByIdAndUpdate(req.params.productId, {
+            $pull: { likes: req.user._id }
+        }, { new: true }).exec().then((pulled) => {
+            console.log(pulled);
+            res.status(200).send({
+                message: "unliked the product"
+            })
+        }).catch((errb) => {
+            res.status(500).send({
+                message: "something went wrong while liking product" || errb
+            })
+        })
     })
 }
