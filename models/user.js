@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const UserSchema = mongoose.Schema({
-  //  _id: mongoose.Schema.Types.ObjectId,
+    //  _id: mongoose.Schema.Types.ObjectId,
     username: {
         type: String,
         required: true,
@@ -11,11 +11,11 @@ const UserSchema = mongoose.Schema({
         required: true,
         unique: true,
     },
- /*  userphoto: {
-        type: String,
-        required: true
-    },
-    */
+    /*  userphoto: {
+           type: String,
+           required: true
+       },
+       */
     password: {
         type: String,
         required: true,
@@ -25,7 +25,9 @@ const UserSchema = mongoose.Schema({
         min: 18,
         max: 60,
         required: true
-    }
+    },
+    resetToken: String,
+    expireToken: Date
 }, {
     timestamps: true
 })
